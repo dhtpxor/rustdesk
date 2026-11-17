@@ -424,7 +424,37 @@ class _RemotePageState extends State<RemotePage> with WidgetsBindingObserver {
     if (isIOS) {
       _handleIOSSoftKeyboardInput(newValue);
     } else {
-      _handleNonIOSSoftKeyboardInput(newValue);
+      _handleAndroidTextDiff(newValue);
+    }
+  }
+
+  // Korean IME edits the last syllable in place (아 -> 안), which keeps the
+  // length unchanged, so diff by common prefix and resend the changed tail as
+  // unicode text. Unicode text also ignores the host's Korean/English IME mode.
+  void _handleAndroidTextDiff(String newValue) {
+    var oldValue = _value;
+    _value = newValue;
+    if (oldValue.isNotEmpty &&
+        newValue.isNotEmpty &&
+        oldValue[0] == '1' &&
+        newValue[0] != '1') {
+      oldValue = '';
+    }
+    var common = 0;
+    while (common < oldValue.length &&
+        common < newValue.length &&
+        oldValue[common] == newValue[common]) {
+      common++;
+    }
+    for (var i = 0; i < oldValue.length - common; i++) {
+      inputModel.inputKey('VK_BACK');
+    }
+    final added = newValue.substring(common);
+    if (added.isEmpty) return;
+    if (added == '\n' || added == ' ') {
+      inputChar(added);
+    } else {
+      bind.sessionInputString(sessionId: sessionId, value: added);
     }
   }
 
