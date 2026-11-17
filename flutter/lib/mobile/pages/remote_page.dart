@@ -538,7 +538,11 @@ class _RemotePageState extends State<RemotePage> with WidgetsBindingObserver {
 
     return WillPopScope(
       onWillPop: () async {
-        clientClose(sessionId, gFFI);
+        if (isAndroid) {
+          gFFI.invokeMethod("move_task_to_back");
+        } else {
+          clientClose(sessionId, gFFI);
+        }
         return false;
       },
       child: Scaffold(

@@ -388,6 +388,9 @@ class MainActivity : FlutterActivity() {
                     result.success(true)
 
                 }
+                "move_task_to_back" -> {
+                    result.success(moveTaskToBack(true))
+                }
                 "try_sync_clipboard" -> {
                     rdClipboardManager?.syncClipboard(true)
                     result.success(true)
