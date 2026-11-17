@@ -25,6 +25,7 @@ import '../../models/shortcut_model.dart';
 import '../../utils/image.dart';
 import '../widgets/dialog.dart';
 import '../widgets/custom_scale_widget.dart';
+import '../widgets/my_shortcut_bar.dart';
 
 final initText = '1' * 1024;
 
@@ -485,8 +486,19 @@ class _RemotePageState extends State<RemotePage> with WidgetsBindingObserver {
   Widget _bottomWidget() => _showGestureHelp
       ? getGestureHelp()
       : (_showBar && gFFI.ffiModel.pi.displays.isNotEmpty
-          ? getBottomAppBar()
+          ? _withMyShortcutBar(getBottomAppBar())
           : Offstage());
+
+  Widget _withMyShortcutBar(Widget bar) {
+    final ffiModel = gFFI.ffiModel;
+    if (isWeb || ffiModel.viewOnly || !ffiModel.keyboard || ffiModel.isPeerAndroid) {
+      return bar;
+    }
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [MyShortcutBar(ffi: gFFI), bar],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
